@@ -119,6 +119,12 @@
 				//scene.add( group2 );
 				
 				// controllers
+				function onSelectStart() {
+					this.userData.isSelecting = true;
+				}
+				function onSelectEnd() {
+					this.userData.isSelecting = false;
+				}
 				function onSqueezeStart() {
 					this.userData.isSqueezing = true;
 					this.userData.positionAtSqueezeStart = this.position.y;
