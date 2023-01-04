@@ -191,7 +191,7 @@
 
 			}
 			//gridを移動させる
-			function onSelectStart(event) {
+			function onSqueezeStart(event) {
 				const controller = event.target;
 				const intersections = getIntersections(controller);
 				if ( intersections.length > 0 ) {
@@ -202,7 +202,7 @@
 					controller.userData.selected = object;
 					}
 				}
-			function onSelectEnd(event) {
+			function onSqueezeEnd(event) {
 				const controller = event.target;
 				if ( controller.userData.selected !== undefined ) {
 					const object = controller.userData.selected;
