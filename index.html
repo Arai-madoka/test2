@@ -26,8 +26,6 @@
 			let raycaster;
 			let controls;
 			let group1,group2;
-			
-			const intersected = [];
 
 			const params = {
 				size:1.0,
@@ -127,6 +125,8 @@
 				}
 				function onSqueezeStart() {
 					this.userData.isSqueezing = true;
+					this.userData.positionAtSqueezeStart = this.position.y;
+					this.userData.scaleAtSqueezeStart = this.scale.x;
 				}
 				function onSqueezeEnd() {
 					this.userData.isSqueezing = false;
@@ -188,62 +188,18 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 
 			}
-			//gridを移動させる
-			function onSqueezeStart(event) {
-				const controller = event.target;
-				const intersections = getIntersections(controller);
-				if ( intersections.length > 0 ) {
-					const intersection = intersections[ 0 ];
-					const object = intersection.object;
-					object.material.emissive.b = 1;
-					controller.attach( object );
-					controller.userData.selected = object;
-					}
-				}
-			function onSqueezeEnd(event) {
-				const controller = event.target;
-				if ( controller.userData.selected !== undefined ) {
-					const object = controller.userData.selected;
-					object.material.emissive.b = 0;
-					group1.attach( object );
-					controller.userData.selected = undefined;
-				}
-				
-			}
-			function getIntersections( controller ) {
-				tempMatrix.identity().extractRotation( controller.matrixWorld );
-				raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
-				raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
-				return raycaster.intersectObjects( group1.children, false );
-			}
-			// シェイプとコントローラのレイの交差判定
-			function intersectObjects(controller) {
-			  	if (controller.userData.selected !== undefined) return;
-  				// 光線の取得
-  				const line = controller.getObjectByName("line");
-  				// レイと交差しているシェイプの取得
-  				const intersections = getIntersections(controller);
-				if (intersections.length > 0) {
-    					// 交差時は赤くする
-    					const intersection = intersections[0];
-    					const object = intersection.object;
-    					object.material.emissive.r = 1;
-    					intersected.push(object);
-    					// 交差時は光線の長さをシェイプまでにする
-    					line.scale.z = intersection.distance;
-  				} else {
-    				// 光線の長さを固定長に戻す
-    				line.scale.z = 5;
-  				}
-			}
-
-			//線を描く
+			//
 			function handleController( controller ) {
 				const userData = controller.userData;
 				const painter = userData.painter;
 				const pivot = controller.getObjectByName( 'pivot' );
 				const intersects = raycaster.intersectObjects( scene.children );
-
+				if ( userData.isSqueezing === true ) {
+					const delta = ( controller.position.y - userData.positionAtSqueezeStart ) * 5;
+					const scale = Math.max( 0.1, userData.scaleAtSqueezeStart + delta );
+					pivot.scale.setScalar( scale );
+					painter.setSize( scale );
+				}
 				cursor.setFromMatrixPosition( pivot.matrixWorld );
 				if ( userData.isSelecting === true ) {
 					painter.lineTo( cursor );
