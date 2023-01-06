@@ -22,6 +22,7 @@
 			let controllerGrip1, controllerGrip2;
 
 			const cursor = new THREE.Vector3();
+			const tempMatrix = new THREE.Matrix4();
 
 			let raycaster;
 			let controls;
@@ -186,6 +187,13 @@
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
 				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+			function getIntersections( controller ) {
+				tempMatrix.identity().extractRotation( controller.matrixWorld );
+				raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
+				raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
+				return raycaster.intersectObjects( group1.children, false );
 
 			}
 			// シェイプとコントローラのレイの交差判定
