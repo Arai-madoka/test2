@@ -124,13 +124,7 @@
 				}
 				function onSelectEnd() {
 					this.userData.isSelecting = false;
-				}
-				function onSqueezeStart() {
-					this.userData.isSqueezing = true;
-				}
-				function onSqueezeEnd() {
-					this.userData.isSqueezing = false;
-				}				
+				}			
 
 				controller1 = renderer.xr.getController( 0 );
 				controller1.addEventListener( 'selectstart', onSelectStart );
