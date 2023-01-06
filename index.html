@@ -192,16 +192,16 @@
 					const object = intersection.object;
 					object.material.emissive.b = 1;
 					controller.attach( object );
-					controller.userData.selected = object;
+					controller.userData.Squeezed = object;
 					}
 				}
 			function onSqueezeEnd(event) {
 				const controller = event.target;
-				if ( controller.userData.selected !== undefined ) {
-					const object = controller.userData.selected;
+				if ( controller.userData.Squeezed !== undefined ) {
+					const object = controller.userData.Squeezed;
 					object.material.emissive.b = 0;
 					group1.attach( object );
-					controller.userData.selected = undefined;
+					controller.userData.Squeezed = undefined;
 				}
 				
 			}
@@ -215,7 +215,7 @@
 			}
 			// シェイプとコントローラのレイの交差判定
 			function intersectObjects(controller) {
-			  	if (controller.userData.selected !== undefined) return;
+			  	if (controller.userData.Squeezed !== undefined) return;
   				// 光線の取得
   				const line = controller.getObjectByName("line");
   				// レイと交差しているシェイプの取得
