@@ -23,6 +23,7 @@
 
 			const cursor = new THREE.Vector3();
 			const tempMatrix = new THREE.Matrix4();
+			// レイと交差しているシェイプの一覧
 			let intersected = [];
 
 			let raycaster;
@@ -246,11 +247,19 @@
 					painter.moveTo( cursor );
 				}
 			}
+			// シェイプとコントローラのレイの交差判定のクリア
+			function cleanIntersected() {
+				while ( intersected.length ) {
+					const object = intersected.pop();
+					object.material.emissive.r = 0;
+				}
+			}
 			
 			function animate() {
 				renderer.setAnimationLoop( render );
 			}
 			function render() {
+				cleanIntersected();
 				handleController( controller1 );
 				handleController( controller2 );
 				renderer.render( scene, camera );
