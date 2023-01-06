@@ -188,6 +188,26 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 
 			}
+			// シェイプとコントローラのレイの交差判定
+			function intersectObjects(controller) {
+			  	if (controller.userData.selected !== undefined) return;
+  				// 光線の取得
+  				const line = controller.getObjectByName("line");
+  				// レイと交差しているシェイプの取得
+  				const intersections = getIntersections(controller);
+				if (intersections.length > 0) {
+    					// 交差時は赤くする
+    					const intersection = intersections[0];
+    					const object = intersection.object;
+    					object.material.emissive.r = 1;
+    					intersected.push(object);
+    					// 交差時は光線の長さをシェイプまでにする
+    					line.scale.z = intersection.distance;
+  				} else {
+    				// 光線の長さを固定長に戻す
+    				line.scale.z = 5;
+  				}
+			}
 			//
 			function handleController( controller ) {
 				const userData = controller.userData;
@@ -208,6 +228,7 @@
 					painter.moveTo( cursor );
 				}
 			}
+			
 			function animate() {
 				renderer.setAnimationLoop( render );
 			}
