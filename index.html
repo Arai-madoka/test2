@@ -125,7 +125,27 @@
 				}
 				function onSelectEnd() {
 					this.userData.isSelecting = false;
-				}			
+				}
+				function onSqueezeStart(event) {
+					const controller = event.target;
+					const intersections = getIntersections(controller);
+					if ( intersections.length > 0 ) {
+						const intersection = intersections[ 0 ];
+						const object = intersection.object;
+						object.material.emissive.b = 1;
+						controller.attach( object );
+						controller.userData.Squeezed = object;
+					}
+				}
+				function onSqueezeEnd(event) {
+					const controller = event.target;
+					if ( controller.userData.Squeezed !== undefined ) {
+						const object = controller.userData.Squeezed;
+						object.material.emissive.b = 0;
+						group1.attach( object );
+						controller.userData.Squeezed = undefined;
+					}	
+				}
 
 				controller1 = renderer.xr.getController( 0 );
 				controller1.addEventListener( 'selectstart', onSelectStart );
@@ -183,28 +203,6 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 
 			}
-			//コントローラーイベント
-			function onSqueezeStart(event) {
-				const controller = event.target;
-				const intersections = getIntersections(controller);
-				if ( intersections.length > 0 ) {
-					const intersection = intersections[ 0 ];
-					const object = intersection.object;
-					object.material.emissive.b = 1;
-					controller.attach( object );
-					controller.userData.Squeezed = object;
-					}
-				}
-			function onSqueezeEnd(event) {
-				const controller = event.target;
-				if ( controller.userData.Squeezed !== undefined ) {
-					const object = controller.userData.Squeezed;
-					object.material.emissive.b = 0;
-					group1.attach( object );
-					controller.userData.Squeezed = undefined;
-				}
-				
-			}
 			//交差しているオブジェクトを取得
 			function getIntersections( controller ) {
 				tempMatrix.identity().extractRotation( controller.matrixWorld );
@@ -213,15 +211,23 @@
 				return raycaster.intersectObjects( group1.children, false );
 
 			}
-			// シェイプとコントローラのレイの交差判定
-			function intersectObjects(controller) {
-			  	if (controller.userData.Squeezed !== undefined) return;
-  				// 光線の取得
+			//
+			function handleController( controller ) {
+				const userData = controller.userData;
+				const painter = userData.painter;
+				const pivot = controller.getObjectByName( 'pivot' );
+				cursor.setFromMatrixPosition( pivot.matrixWorld );
+				if ( userData.isSelecting === true ) {
+					painter.lineTo( cursor );
+					painter.update();
+				} else {
+					painter.moveTo( cursor );
+				}
+				// シェイプとコントローラのレイの交差判定
+				if (userData.Squeezed !== undefined) return;
   				const line = controller.getObjectByName("line");
-  				// レイと交差しているシェイプの取得
   				const intersections = getIntersections(controller);
 				if (intersections.length > 0) {
-    					// 交差時は赤くする
     					const intersection = intersections[0];
     					const object = intersection.object;
     					object.material.emissive.r = 1;
@@ -232,20 +238,7 @@
     				// 光線の長さを固定長に戻す
     				line.scale.z = 5;
   				}
-			}
-			//
-			function handleController( controller ) {
-				const userData = controller.userData;
-				const painter = userData.painter;
-				const pivot = controller.getObjectByName( 'pivot' );
-				const intersects = raycaster.intersectObjects( scene.children );
-				cursor.setFromMatrixPosition( pivot.matrixWorld );
-				if ( userData.isSelecting === true ) {
-					painter.lineTo( cursor );
-					painter.update();
-				} else {
-					painter.moveTo( cursor );
-				}
+				
 			}
 			// シェイプとコントローラのレイの交差判定のクリア
 			function cleanIntersected() {
@@ -262,8 +255,6 @@
 				cleanIntersected();
 				handleController( controller1 );
 				handleController( controller2 );
-				//intersectObjects( controller1 );
-				//intersectObjects( controller2 );
 				
 				renderer.render( scene, camera );
 
